@@ -1,0 +1,50 @@
+body {
+    background-color:  rgb(34, 34, 93);
+}
+.btn.calcular {
+    background-color: rgb(34, 34, 93);
+    color: white;
+    border-color: none;
+}
+
+#seccionCalculo {
+    background-color: white;
+    padding: 15px;
+    margin: 15px;
+    border-radius: 10px;
+}
+
+#seccionInfo {
+    background-color: white;
+    padding: 15px;
+    margin: 15px;
+    border-radius: 10px;
+}
+
+#seccionFacturacion {
+    background-color: white;
+    padding: 15px;
+    margin: 15px;
+    border-radius: 10px;
+}
+
+#seccionImagen1 {
+    background-color: none;
+    padding: 15px;
+    margin: 15px;
+    border-radius: 10px;
+}
+
+#seccionGeneracion {
+    background-color: white;
+    padding: 15px;
+    margin: 15px;
+    border-radius: 10px;
+}
+
+#footer {
+    margin-top: 20px;
+    background-color: white;
+    padding: 5px;
+    
+}
