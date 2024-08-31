@@ -1,0 +1,47 @@
+[
+    {
+        "id":"R1",
+        "descripcion":"Cantidad de paneles: ",
+        "unidadMedida":"paneles"
+    },
+    {
+        "id":"R2",
+        "descripcion":"Potencia del sistema: ",
+        "unidadMedida":"kW"
+    },
+    {
+        "id":"R3",
+        "descripcion":"Potencia de los paneles:",
+        "unidadMedida":"Wp"
+    },
+    {
+        "id":"R4",
+        "descripcion":"Potencia del inversor:",
+        "unidadMedida":"kW"
+    },
+    {
+        "id":"R5",
+        "descripcion":"Generación bimestral promedio:",
+        "unidadMedida":"kWh"
+    },
+    {
+        "id":"R6",
+        "descripcion":"Consumo bimestral promedio:",
+        "unidadMedida":"kWh"
+    },
+    {
+        "id":"R7",
+        "descripcion":"Facturación anual actual:",
+        "unidadMedida":"MXN"
+    },
+    {
+        "id":"R8",
+        "descripcion":"Facturación anual con paneles:",
+        "unidadMedida":"MXN"
+    },
+    {
+        "id":"R9",
+        "descripcion":"Ahorro anual estimado:",
+        "unidadMedida":"MXN"
+    }
+]
