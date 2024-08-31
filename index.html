@@ -16,6 +16,7 @@
     <link rel="icon" type="image/x-icon" href="/imagenes/Short_logo.png">
 </head>
 <body>
+    <!-- Navbar-->
     <nav class="navbar navbar-expand-sm bg-body-tertiary">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
@@ -42,8 +43,10 @@
             </div>
         </div>
     </nav>
+
     <div class="container text-center">
         <div class="row">
+            <!-- Seccion de Consumos Bimestrales-->
             <div class="col-md-3" id="seccionCalculo">
                 <div class="row m-2"><h3>Consumo Bimestral</h3></div>
                 <div id="contenedor-periodos">
@@ -56,6 +59,7 @@
                     <button class="btn calcular" type="button">Calcular</button>
                 </div>
             </div>
+            <!-- Seccion de Resultados-->
             <div class="col-md-8" id="seccionInfo">
                 <div class="row mt-2 mb-4"><h3>Resultados de los calculos</h3></div>
                 <div id="contenedor-resultados">
@@ -67,22 +71,25 @@
             </div>
         </div>
         <div class="row">
+            <!-- Seccion de Grafica de Facturacion-->
             <div class="col-md-7" id="seccionFacturacion">
                 <div class="row mt-0 mb-2"><h3>Facturacion bimestral sin paneles</h3></div>
                 <canvas id="grafica-facturacion"></canvas>
             </div>
+            <!-- Imagen de paneles-->
             <div class="col-md-4" id="seccionImagen1">
                 <img src="imagenes/panelPlano.png" alt="Logo" width=200 height=200 class="d-inline-block align-self-center">
             </div>
         </div>
         <div class="row">
+            <!-- Seccion de Grafica de Generacion-->
             <div class="col-md" id="seccionGeneracion">
                 <div class="row mt-0 mb-2"><h3>Estimado de generación de sistema fotovoltaico</h3></div>
                 <canvas id="grafica-generacion"></canvas>
             </div>               
         </div>
     </div>
-
+    <!-- Footer-->
     <div class="row" id="footer">
         <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-0">
           <p class="col-md-4 mb-0 text-body-secondary">©2024 Sunen</p>
