@@ -1,8 +1,8 @@
 export class EleResultados {
-    constructor(id,descripcion,unidadMedida,resultado) {
+    constructor(id,descripcion,resultado,unidadMedida) {
         this.id = id;
         this.descripcion = descripcion;
-        this.unidadMedida = unidadMedida;
         this.resultado = resultado;
+        this.unidadMedida = unidadMedida;
     }
 }

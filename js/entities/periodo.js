@@ -1,7 +1,7 @@
 export class Periodo {
-    constructor(id, periodo) {
-        this.id = id;
+    constructor(periodo, consumo) {
         this.periodo = periodo;
+        this.consumo = consumo;
     }
 }
 
