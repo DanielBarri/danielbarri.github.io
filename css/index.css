@@ -48,3 +48,9 @@ body {
     padding: 5px;
     
 }
+
+#imagen-resultados {
+    width: 50%;
+    justify-content: center;
+    align-items: center;
+}

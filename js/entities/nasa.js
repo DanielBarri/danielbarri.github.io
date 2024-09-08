@@ -1,5 +1,5 @@
 export class Nasa {
-    constructor(JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DIC) {
+    constructor(JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC) {
         this.JAN = JAN;
         this.FEB = FEB;
         this.MAR = MAR;
@@ -11,6 +11,6 @@ export class Nasa {
         this.SEP = SEP;
         this.OCT = OCT;
         this.NOV = NOV;
-        this.DIC = DIC;
+        this.DEC = DEC;
     }
 }

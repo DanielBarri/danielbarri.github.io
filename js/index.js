@@ -6,25 +6,23 @@ import {Nasa} from "./entities/nasa.js"
 //const estandarPesosMexicanos = Intl.NumberFormat("es-MX");
 
 
-//const contenedorResultados = document.getElementById("contenedor-resultados");
+const contenedorResultados = document.getElementById("contenedor-resultados");
 const contenedorPeriodos = document.getElementById("contenedor-periodos");
 const graficaGeneracion = document.getElementById('grafica-generacion');
 const graficaFacturacion = document.getElementById('grafica-facturacion');
 
 const consumosPeriodos = [];
 const dataNasa = [];
-const generacionMensual= {};
+
+
 const promGeneracionBim = 0;
 const resultadosCalculos = [];
 
 
 const numPeriodos = 6;
-const potenciaPanel = 580;
-const factor = (0.8/1000);
-const diasMes = 30;
 const potenciaInversores = [1000,2000,3600,6000,8000,10000,15000];
 
-//Funcion para cargar datos de irradiaciones NASA
+//Funcion para cargar datos de irradiaciones NASA OK
 const cargarDatosNasa = () => {
   fetch('./js/data/nasa.json')
     .then(response => response.json())
@@ -34,16 +32,13 @@ const cargarDatosNasa = () => {
           new Nasa(elemento.JAN,elemento.FEB,elemento.MAR,
                    elemento.APR,elemento.MAY,elemento.JUN,
                    elemento.JUL,elemento.AUG,elemento.SEP,
-                   elemento.OCT,elemento.NOV,elemento.DIC));
+                   elemento.OCT,elemento.NOV,elemento.DEC));
       });
     })
     .then(() =>{ 
       
       dibujarContenedorPeriodos();
       consumosPeriodosLocalStorage();
-
-      console.log("Generacion Mensual: ", generacionMensual);
-      console.log("DataNasa: ", dataNasa);
       
     })
     .catch(error => {
@@ -58,7 +53,7 @@ const cargarDatosNasa = () => {
     });
 };
 
-// Funcion para activar boton de cargar, guardar datos de consumos para hacer calculos
+// Funcion para activar boton de cargar, guardar datos de consumos para hacer calculos OK
 const crearEventoCalcular = () => {
   const evento = (ev) => {
     //Resetea las variables 
@@ -77,6 +72,8 @@ const crearEventoCalcular = () => {
     localStorage.setItem('consumosPeriodosJson', consumosPeriodosJson);
     
     dibujarContenedorPeriodos();
+    calcularNumPaneles();
+    dibujaSeccionResultados();
 
     Swal.fire({
       title: "¡Calculo realizado!",
@@ -86,7 +83,7 @@ const crearEventoCalcular = () => {
   return evento;
 };
 
-// Crear celda de Inputs Periodos
+// Crear celda de Inputs Periodos OK
 const crearCeldaInput = (i) => {
   
   let input = document.createElement("input");
@@ -108,7 +105,7 @@ const crearCeldaInput = (i) => {
   return celda;
 }
 
-//Dibujar contenedor Periodos
+//Dibujar contenedor Periodos OK
 const dibujarContenedorPeriodos = () => {
   contenedorPeriodos.innerHTML = "";
 
@@ -133,7 +130,7 @@ const dibujarContenedorPeriodos = () => {
 
 
 
-//Funcion para cargar localStorage de consumosPeriodos
+//Funcion para cargar localStorage de consumosPeriodos OK
 const consumosPeriodosLocalStorage = () => {
   if(localStorage.getItem("consumosPeriodosJson")) {
     let consumosPeriodosJson = JSON.parse(localStorage.getItem("consumosPeriodosJson"));
@@ -151,12 +148,34 @@ const consumosPeriodosLocalStorage = () => {
 
 
 //funcion para calcular Generacion Promedio Bimestral
-const genBimestralProm = () => {
-  const sumaGeneracion = Object.values(generacionMensual).reduce((acumulador, valor) => acumulador + valor, 0);
-  const promedioGen = sumaGeneracion/sumaGeneracion.length;
-  console.log("Promedio",promedioGen);
-}
+const potenciaPanel = 580;
+const factor = (0.8/1000);
+const diasMes = 30;
+const dataNasa2 = [{"JAN":4.26,"FEB":5.26,"MAR":6.33,"APR":6.91,"MAY":6.95,"JUN":6.66,"JUL":6.39,"AUG":6.33,"SEP":5.4,"OCT":5.16,"NOV":4.46,"DEC":4.12}];
+const generacionMensual= [];
 
+const calcularGeneracionMensual = (data, potencia, factor, dias) => {
+  data.forEach(obj => {
+    const nuevoObj = {};
+    Object.keys(obj).forEach(mes => {
+      nuevoObj[mes] = obj[mes] * potencia * factor * dias;
+    });
+    generacionMensual.push(nuevoObj);
+  });
+};
+
+const calcularPromedio = (array) => {
+  calcularGeneracionMensual(dataNasa2, potenciaPanel, factor, diasMes);
+  const sumas = array.reduce((acumulador, obj) => {
+    Object.values(obj).forEach(valor => {
+      acumulador += valor;
+    });
+    return acumulador;
+  }, 0);
+
+  const totalValores = array.length * Object.keys(array[0]).length;
+  return sumas / totalValores;
+};
 
 //funcion calcularConsumoBimestralPromedio
 const consumosPromedioBimestral = () => {
@@ -167,7 +186,7 @@ const consumosPromedioBimestral = () => {
   });
 
   const consumoBimestral = sumaConsumo / consumosPeriodos.length;
-  console.log("Suma", sumaConsumo);
+  console.log("Suma de tu consumo es: ", sumaConsumo);
   console.log(`El consumo promedio es: ${consumoBimestral}`);
   return consumoBimestral;
 };
@@ -176,12 +195,17 @@ const consumosPromedioBimestral = () => {
 //Calcular numero de Paneles
 const calcularNumPaneles = () => {
   let prom = consumosPromedioBimestral();
-  let gen = genBimestralProm();
+  let gen = calcularPromedio(generacionMensual)*2;
   console.log("Prom: ", prom);
   console.log("gen", gen);
-  const numPaneles = (prom/gen);
+  const numPaneles = Math.ceil(prom/gen);
+  let genPromedio = Math.round(gen*numPaneles);
   llenarResultados("R1","Cantidad de paneles: ",numPaneles,"paneles");
   const potenciaSistema = numPaneles*potenciaPanel;
+  llenarResultados("R2","Potencia del sistema: ",potenciaSistema,"W");
+  llenarResultados("R3","Potencia de paneles: ", potenciaPanel,"Wp");
+
+
 
   const numeroMasCercanoMayor = (lista, num) => {
     const mayores = lista.filter(n => n > num);
@@ -193,26 +217,43 @@ const calcularNumPaneles = () => {
   console.log("Numero de Paneles: ", numPaneles);
   console.log("Potencia de sistema: ", potenciaSistema);
   console.log("Potencia de Inversor: ", potenciaInversor);
+  llenarResultados("R4","Potencia del Inversor: ",potenciaInversor,"W");
+  llenarResultados("R5","Generación bimestral promedio: ",genPromedio,"kWh");
+  llenarResultados("R6","Consumo bimestral promedio:",prom,"kWh");
   return numPaneles;
 }; 
 
 //Funcion para dibujar seccion de Resultados de los calculos
-const dibujaSeccionResultados = () => {
-  let content = "";
- 
-  resultadosCalculos.forEach(elemento => {
-    content += `<div class="row mt-2 mb-2">
-                  <div class="col-8">${resultadosCalculos.descripcion}</div>
-                  <div class="col-3">10 paneles</div>
-                </div>`;
-  })
-  document.getElementById("contenedor-resultados").innerHTML = content;
-};
+const crearFilaResultado = (resultado) => {
+  let col1 = document.createElement("div");
+  col1.className = "col-8";
+  col1.textContent = resultado.descripcion;
+  
+  let col2 = document.createElement("div");
+  col2.className = "col-3";
+  col2.textContent = `${resultado.resultado} ${resultado.unidadMedida}`;
 
+  let row = document.createElement("div");
+  row.className = "row mt-2 mb-2";
+  row.appendChild(col1);
+  row.appendChild(col2);
+
+  return row;
+}
+
+const dibujaSeccionResultados = () => {
+  contenedorResultados.innerHTML = "";
+ 
+  resultadosCalculos.forEach(resultado => {
+    let contenedorRow = crearFilaResultado(resultado); 
+    contenedorResultados.append(contenedorRow);
+  })
+};
 
 
 const llenarResultados = (id,descripcion,resultado,unidadMedida) => {
   resultadosCalculos.push(new EleResultados(id,descripcion,resultado,unidadMedida));
+  console.log(resultadosCalculos);
 }
 
 
