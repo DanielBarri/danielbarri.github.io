@@ -1,24 +1,35 @@
 import {EleResultados} from "./entities/elementoResultados.js"
 import {Periodo} from "./entities/periodo.js"
 import {Nasa} from "./entities/nasa.js"
+import {Facturacion} from "./entities/facturacion.js"
 
 //const estandarDolaresAmericanos = Intl.NumberFormat("en-US");
 //const estandarPesosMexicanos = Intl.NumberFormat("es-MX");
 
 
-const contenedorResultados = document.getElementById("contenedor-resultados");
+
 const contenedorPeriodos = document.getElementById("contenedor-periodos");
+const contenedorResultados = document.getElementById("seccionInfo");
 const graficaGeneracion = document.getElementById('grafica-generacion');
-const graficaFacturacion = document.getElementById('grafica-facturacion');
+const contenedorGrafica = document.getElementById('contenedor-grafica');
+
 
 const consumosPeriodos = [];
 const dataNasa = [];
+const facturacionBimestral = [];
+const diasPorBimestre = [];
+
+let chartInstance;
 
 
 const promGeneracionBim = 0;
 const resultadosCalculos = [];
 
-
+const potenciaPanel = 580;
+const factor = (0.8/1000);
+const diasMes = 30;
+const dataNasa2 = [{"JAN":4.26,"FEB":5.26,"MAR":6.33,"APR":6.91,"MAY":6.95,"JUN":6.66,"JUL":6.39,"AUG":6.33,"SEP":5.4,"OCT":5.16,"NOV":4.46,"DEC":4.12}];
+const generacionMensual= [];
 const numPeriodos = 6;
 const potenciaInversores = [1000,2000,3600,6000,8000,10000,15000];
 
@@ -59,6 +70,8 @@ const crearEventoCalcular = () => {
     //Resetea las variables 
     consumosPeriodos.length = 0;
     resultadosCalculos.length = 0;
+    facturacionBimestral.length = 0;
+    diasPorBimestre.length = 0;
     
     for(let i = 0; i < numPeriodos; i++){
       const periodo = `periodo ${i+1}`;
@@ -71,9 +84,11 @@ const crearEventoCalcular = () => {
     console.info("Consumos por periodo guardados:", consumosPeriodosJson);
     localStorage.setItem('consumosPeriodosJson', consumosPeriodosJson);
     
+    resetCharts();
     dibujarContenedorPeriodos();
     calcularNumPaneles();
     dibujaSeccionResultados();
+    
 
     Swal.fire({
       title: "¡Calculo realizado!",
@@ -88,7 +103,7 @@ const crearCeldaInput = (i) => {
   
   let input = document.createElement("input");
   input.className = "form-control";
-  input.type = "number";
+  input.type = 'number';
   input.placeholder = `Periodo ${i+1}`;
   input.id = `periodo-${i+1}`;
 
@@ -99,8 +114,8 @@ const crearCeldaInput = (i) => {
   
   let celda= document.createElement("div");
   celda.className = "input-group mb-2";
-  celda.appendChild(input);
-  celda.appendChild(span);
+  celda.append(input);
+  celda.append(span);
 
   return celda;
 }
@@ -138,7 +153,7 @@ const consumosPeriodosLocalStorage = () => {
     consumosPeriodosJson.forEach(elemento => {
       let registro = new Periodo(
         elemento.periodo,
-        elemento.consumo);
+        Number(elemento.consumo));
 
       consumosPeriodos.push(registro);
     });
@@ -146,14 +161,33 @@ const consumosPeriodosLocalStorage = () => {
   }
 };
 
+//funcion para calcular facturacion bimestral de consumos
+const calcularFacturacionBimestral = () => {
+  const consBasico = 1.039;
+  const consIntermedio = 1.263;
+  const consExcedente = 3.698;
+  const tbase = 58.08;
+  
+  consumosPeriodos.forEach(obj => {
+    let periodo = obj.periodo;
+    let consumo = 0;
+    if (obj.consumo < 150) {
+      consumo = Math.round(obj.consumo * consBasico + tbase);
+    } else if (obj.consumo < 280) {
+      consumo = Math.round((obj.consumo-150)*consIntermedio + 150*consBasico + tbase);
+    } else {
+      consumo = Math.round((obj.consumo-280)*consExcedente + 130*consIntermedio + 150*consBasico + tbase);
+    }
+    let elementoFacturacion = new Facturacion(periodo,consumo)
+    facturacionBimestral.push(elementoFacturacion);
+      
+  });
+  console.log("Facturacion Bimestral: ", facturacionBimestral);
+  return facturacionBimestral;
+};
+
 
 //funcion para calcular Generacion Promedio Bimestral
-const potenciaPanel = 580;
-const factor = (0.8/1000);
-const diasMes = 30;
-const dataNasa2 = [{"JAN":4.26,"FEB":5.26,"MAR":6.33,"APR":6.91,"MAY":6.95,"JUN":6.66,"JUL":6.39,"AUG":6.33,"SEP":5.4,"OCT":5.16,"NOV":4.46,"DEC":4.12}];
-const generacionMensual= [];
-
 const calcularGeneracionMensual = (data, potencia, factor, dias) => {
   data.forEach(obj => {
     const nuevoObj = {};
@@ -177,6 +211,9 @@ const calcularPromedio = (array) => {
   return sumas / totalValores;
 };
 
+
+
+
 //funcion calcularConsumoBimestralPromedio
 const consumosPromedioBimestral = () => {
   let sumaConsumo = 0;
@@ -186,18 +223,15 @@ const consumosPromedioBimestral = () => {
   });
 
   const consumoBimestral = sumaConsumo / consumosPeriodos.length;
-  console.log("Suma de tu consumo es: ", sumaConsumo);
-  console.log(`El consumo promedio es: ${consumoBimestral}`);
   return consumoBimestral;
 };
+
 
 
 //Calcular numero de Paneles
 const calcularNumPaneles = () => {
   let prom = consumosPromedioBimestral();
   let gen = calcularPromedio(generacionMensual)*2;
-  console.log("Prom: ", prom);
-  console.log("gen", gen);
   const numPaneles = Math.ceil(prom/gen);
   let genPromedio = Math.round(gen*numPaneles);
   llenarResultados("R1","Cantidad de paneles: ",numPaneles,"paneles");
@@ -214,13 +248,45 @@ const calcularNumPaneles = () => {
   }
 
   const potenciaInversor = numeroMasCercanoMayor(potenciaInversores, potenciaSistema);
-  console.log("Numero de Paneles: ", numPaneles);
-  console.log("Potencia de sistema: ", potenciaSistema);
-  console.log("Potencia de Inversor: ", potenciaInversor);
   llenarResultados("R4","Potencia del Inversor: ",potenciaInversor,"W");
   llenarResultados("R5","Generación bimestral promedio: ",genPromedio,"kWh");
   llenarResultados("R6","Consumo bimestral promedio:",prom,"kWh");
-  return numPaneles;
+  
+  const genMenSistema = [];
+
+  const generacionSysMes =(data) => {
+    data.forEach(object => { 
+      let genSys = {};
+      Object.keys(object).forEach(mes => {
+        genSys[mes] = object[mes]*numPaneles;
+      })
+      genMenSistema.push(genSys);
+    })
+  }
+
+  const generacionSysBim = (data) => {
+    
+    const mesesArray = Object.values(data[0]);
+
+    for(let i = 0; i < mesesArray.length; i += 2) {
+      const diasBimestre = Math.round(mesesArray[i] + (mesesArray[i+1] || 0));
+      const periodo = `Periodo ${Math.floor(i/2)+1}`;
+      let elementoGeneracion = new Facturacion(periodo, diasBimestre);
+      diasPorBimestre.push(elementoGeneracion);
+    }
+    return diasPorBimestre;
+  }
+  
+  generacionSysMes(generacionMensual);
+  calcularFacturacionBimestral();
+  const diasBimestres = generacionSysBim(genMenSistema);
+
+  console.log("Generacion Mensual Sistema: ", genMenSistema);
+  console.log("Generacion por bimestre: ", diasBimestres);
+  dibujarGraficaFacturacion(facturacionBimestral);
+  dibujarGraficaGeneracion();
+
+  return diasBimestres;
 }; 
 
 //Funcion para dibujar seccion de Resultados de los calculos
@@ -243,34 +309,48 @@ const crearFilaResultado = (resultado) => {
 
 const dibujaSeccionResultados = () => {
   contenedorResultados.innerHTML = "";
- 
+  
+  let header = document.createElement("h3");
+  header.textContent = "Resultados de los calculos";
+
+  let titulo = document.createElement("div");
+  titulo.className = "row mt-2 mb-4";
+  titulo.appendChild(header);
+
+  let info = document.createElement("div");
+  info.id = "contenedor-resultados"; 
+
   resultadosCalculos.forEach(resultado => {
     let contenedorRow = crearFilaResultado(resultado); 
-    contenedorResultados.append(contenedorRow);
+    info.appendChild(contenedorRow);
   })
+
+  contenedorResultados.appendChild(titulo);
+  contenedorResultados.appendChild(info);
+
 };
 
 
 const llenarResultados = (id,descripcion,resultado,unidadMedida) => {
   resultadosCalculos.push(new EleResultados(id,descripcion,resultado,unidadMedida));
-  console.log(resultadosCalculos);
 }
 
+const resetCharts = () => {
+  contenedorGrafica.innerHTML = "";
+}
 
-const dibujarGraficaFacturacion = () => {
-    const datosFacturacion = [{x:"Periodo 1",y:(generacionMensual.JAN+generacionMensual.FEB)},
-                              {x:"Periodo 2",y:(generacionMensual.JAN+generacionMensual.FEB)},
-                              {x:"Periodo 3",y:(generacionMensual.JAN+generacionMensual.FEB)},
-                              {x:"Periodo 4",y:(generacionMensual.JAN+generacionMensual.FEB)},
-                              {x:"Periodo 5",y:(generacionMensual.JAN+generacionMensual.FEB)},
-                              {x:"Periodo 6",y:(generacionMensual.JAN+generacionMensual.FEB)}];
+const dibujarGraficaFacturacion = (facturacionBimestral) => {
 
-    new Chart(graficaFacturacion, {
+    let grafica = document.createElement("canvas");
+    grafica.id = "grafica-facturacion";
+    contenedorGrafica.appendChild(grafica);
+
+    chartInstance = new Chart(document.getElementById('grafica-facturacion'), {
         type: 'bar',
         data: {
           datasets: [{
-            data: datosFacturacion,
-            label: 'Generacion bimestral (kWh)',
+            data: facturacionBimestral,
+            label: 'Facturacion bimestral ($MXN)',
             borderWidth: 4
           }]
         },
@@ -286,14 +366,12 @@ const dibujarGraficaFacturacion = () => {
 
 
 const dibujarGraficaGeneracion = () => {
-    //prueba de graficado
-    const datosFacturacion = [{x:"Periodo 2",y:3000},{x:"Periodo 2",y:3000},{x:"Periodo 3",y:3000},{x:"Periodo 4",y:3000},{x:"Periodo 5",y:3000},{x:"Periodo 6",y:3000}];
 
     new Chart(graficaGeneracion, {
         type: 'bar',
         data: {
           datasets: [{
-            data: datosFacturacion,
+            data: diasPorBimestre,
             label: 'Generacion bimestral (kWh)',
             borderWidth: 4
           }]
@@ -308,13 +386,6 @@ const dibujarGraficaGeneracion = () => {
       });
 }
 
-dibujarGraficaFacturacion();
-
-
-
-
-//dibujarGraficaGeneracion()
-//dibujarGraficaFacturacion()
 
 
 

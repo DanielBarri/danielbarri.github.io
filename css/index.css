@@ -1,56 +1,118 @@
+:root{
+    --color-primario: #26314F;
+    --color-secundario: #e0a02f;
+    --color-background: #fff;
+}
+
 body {
-    background-color:  rgb(34, 34, 93);
+    background-color:  var(--color-primario);
+    font-family: "Inter", sans-serif;
+    margin-bottom: 0px;
+    color: var(--color-primario);
+    margin-left: 15px;
+    margin-right:15px;
 }
 .btn.calcular {
-    background-color: rgb(34, 34, 93);
-    color: white;
+    background-color: var(--color-primario);
+    color: var(--color-background);
     border-color: none;
 }
 
+#navbar {
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+#imagen-navbar {
+    width: 180px;
+    margin-left: 20px;
+}
+
+.nav-link {
+    font-size: 22px;
+    margin: 0 5px;
+    color: var(--color-primario);
+    transition: all 500ms;
+}
+
+.nav-link:hover {
+    scale: 1.1;
+    font-weight: 600;
+    color: var(--color-secundario);
+}
+
+#navbarNav {
+    margin-right: 20px;
+}
+
+.container.text-center{
+    margin-top: 15px;
+}
+
 #seccion-calculo {
-    background-color: white;
+    background-color: var(--color-background);
     padding: 15px;
-    margin: 15px;
-    border-radius: 10px;
+    margin-top: 20px;
+    border-radius: 20px;
+}
+
+#contenedor-bottonCalculo {
+    margin-top: 20px;
+}
+
+.btn.calcular {
+    cursor: pointer;
 }
 
 #seccionInfo {
-    background-color: white;
+    background-color: var(--color-background);
     padding: 15px;
-    margin: 15px;
-    border-radius: 10px;
+    margin-top: 20px;
+    border-radius: 20px;
+    margin-left: auto;
 }
 
 #seccionFacturacion {
-    background-color: white;
+    background-color:  var(--color-background);
     padding: 15px;
-    margin: 15px;
-    border-radius: 10px;
+    margin-top: 20px;
+    border-radius: 20px;
+}
+
+#imagen-resultados{
+    border-radius: 25px;
+    padding: 5px;
 }
 
 #seccionImagen1 {
     background-color: none;
     padding: 15px;
-    margin: 15px;
-    border-radius: 10px;
+    margin-top: 20px;
+    border-radius: 20px;
+    margin-left: auto;
 }
 
 #seccionGeneracion {
-    background-color: white;
+    background-color: var(--color-background);
     padding: 15px;
-    margin: 15px;
-    border-radius: 10px;
+    margin-top: 20px;
+    border-radius: 20px;
 }
 
 #footer {
+    background-color: var(--color-background);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
     margin-top: 20px;
-    background-color: white;
-    padding: 5px;
-    
+
 }
 
-#imagen-resultados {
-    width: 50%;
-    justify-content: center;
-    align-items: center;
+#imagen-footer {
+    width: 180px;
 }
+
+#container-footer {
+    margin: 0 30px;
+}
+
+
